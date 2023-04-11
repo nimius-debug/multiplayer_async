@@ -1,6 +1,5 @@
 import pygame
 from network import Network
-from player import Player
 
 width = 500
 height = 500
@@ -23,13 +22,13 @@ def get_player_id():
 def main():
     run = True
     player_username = get_player_id()
-    n = Network(player_username)
-    p = n.getP()
+    net = Network(player_username)
+    p = net.getP()
     clock = pygame.time.Clock()
 
     while run:
         clock.tick(60)
-        other_players = n.send(p)
+        other_players = net.send(p)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

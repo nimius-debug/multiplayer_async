@@ -8,10 +8,10 @@ class Network:
         self.server = socket.gethostbyname(socket.gethostname())
         self.port = 5555
         self.addr = (self.server, self.port)
-        self.p = self.connect(user_tag)
+        self.plr = self.connect(user_tag)
 
     def getP(self):
-        return self.p
+        return self.plr
 
     def connect(self, user_tag):
         try:
