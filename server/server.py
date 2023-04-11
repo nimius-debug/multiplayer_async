@@ -1,8 +1,8 @@
 import socket
 import asyncio
 from _thread import *
-from player import Player
-from connectionManager import ConnectionManager
+from server.player import Player
+from server.connectionManager import ConnectionManager
 import pickle
 import random
 
