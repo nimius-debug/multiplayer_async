@@ -1,5 +1,15 @@
 import pygame
-from client.network import Network
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../server'))
+# import os
+# import pickle
+
+# sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+# import Service.connectionManager as conn_mgr
+# import Service.player as Player
+
+from network import Network
 
 width = 500
 height = 500
@@ -22,20 +32,26 @@ def get_player_id():
 def main():
     run = True
     player_username = get_player_id()
+    print('playerusername',player_username)
     net = Network(player_username)
-    p = net.getP()
+    
+    plr = net.getP()
+    print("You are", plr)
     clock = pygame.time.Clock()
-
+    
+    
+    
     while run:
         clock.tick(60)
-        other_players = net.send(p)
+        other_players = net.send(plr)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
                 pygame.quit()
 
-        p.move()
-        redrawWindow(win, [p] + other_players)
+        plr.move()
+        redrawWindow(win, [plr] + other_players)
 
-main()
+if __name__ == "__main__":
+    main()

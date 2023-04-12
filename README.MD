@@ -3,7 +3,28 @@
 
 This multiplayer game template demonstrates how to build a scalable server using Python's asyncio library to handle a significant number of connections. The template includes a simple Player class as a demonstration.
 ![Screenshot](clients.png)
+multi_p/
 
+├── client/
+
+│   ├── __init__.py
+
+│   ├── client.py
+
+│   
+├── server/
+
+│   ├── __init__.py
+
+│   ├── connectionManager.py
+
+│   └── player.py
+
+│
+├── __init__.py
+
+└── network.py
+│ 
 ## Features
 * Asynchronous server using Python's asyncio library
 * Connection manager to handle and manage multiple connections

@@ -10,7 +10,10 @@ class Player():
         self.rect = (x, y, width, height)
         self.vel = 3
         self.user_tag = user_tag
-
+        
+    def __reduce__(self):
+        return (self.__class__, (self.x, self.y, self.width, self.height, self.color, self.user_tag))
+    
     def draw(self, win):
         pygame.draw.rect(win, self.color, self.rect)
         font = pygame.font.Font(None, 24)

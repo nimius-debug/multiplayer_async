@@ -1,22 +1,9 @@
 import socket
 import asyncio
-from _thread import *
-from server.player import Player
-from server.connectionManager import ConnectionManager
+from player import Player
+from connectionManager import ConnectionManager
 import pickle
 import random
-
-
-
-# s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-# try:
-#     s.bind((server, port))
-# except socket.error as e:
-#     str(e)
-
-# s.listen()
-# print("Waiting for a connection, Server Started")
 
 def random_position():
     return random.randint(0, 450), random.randint(0, 450)
@@ -39,8 +26,10 @@ async def handle_client(reader, writer):
     user_tag = pickle.loads(user_tag)
 
     player = new_player(user_tag)
+    print("Player: ", player)
     conn_mgr.add_player(conn_id, player)
 
+    print(f"Sending player object: {player}")
     writer.write(pickle.dumps(player))
     await writer.drain()
     
@@ -51,15 +40,17 @@ async def handle_client(reader, writer):
     try:
         while True:
             data = await reader.read(2048)
+            print("Data: ", data)
             if not data:
                 break
 
             data = pickle.loads(data)
+            print("Data2: ", data)
             conn_mgr.players[conn_id] = data
             
             other_players = conn_mgr.get_all_players_except(conn_id)
             writer.write(pickle.dumps(other_players))
-            # print("Received: ", data) 
+            print("Received: ", data) 
             # print("Sending : ", other_players)
             await writer.drain()
 
@@ -71,35 +62,7 @@ async def handle_client(reader, writer):
 
     print("Lost connection")
     conn_mgr.remove_player(conn_id)
-    
-# def threaded_client(conn, conn_id):
-#     user_tag = pickle.loads(conn.recv(2048))
-#     player = new_player(user_tag)
-#     conn_mgr.add_player(conn_id,player)
-#     conn.send(pickle.dumps(player))
-    
-#     while True:
-#         try:
-#             data = pickle.loads(conn.recv(2048))
-#             conn_mgr.players[conn_id] = data
-            
-#             print("Players: ", conn_mgr.get_all_players())
-#             if not data:
-#                 print("Disconnected")
-#                 break
-#             else:
-#                 print("Received: ", data) 
-#                 other_players = conn_mgr.get_all_players_except(conn_id)
-#                 print("Sending : ", other_players)
-#                 conn.sendall(pickle.dumps(other_players))
-#         except:
-#             break
-
-#     print("Lost connection")
-#     conn_mgr.remove_player(conn_id)
-#     conn.close()
-
-# conn_id = 0
+  
 async def main():
     server_ip = socket.gethostbyname(socket.gethostname())
     port = 5555
@@ -112,9 +75,3 @@ async def main():
         await server.serve_forever()
 
 asyncio.run(main())
-# while True:
-#     conn, addr = s.accept()
-#     print("Connected to:", addr)
-
-#     start_new_thread(threaded_client, (conn, conn_id))
-#     conn_id += 1
