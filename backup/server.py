@@ -2,14 +2,8 @@ import asyncio
 import pickle
 import random
 import socket
-import pygame
-import sys
-import os
-from connectionManager import ConnectionManager
-# Add the path of the folder containing the file you want to import
-folder_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../util'))
-sys.path.insert(0, folder_path)
 from player import Player
+from connectionManager import ConnectionManager
 
 class Server:
     def __init__(self, ip, port):
@@ -24,23 +18,22 @@ class Server:
         return random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
 
     def new_player(self, user_tag):
-        pos = self.random_position()
-        # color = self.random_color()
-        player = Player(pos, self.conn_mgr.players, user_tag)
-        # player.user_tag = user_tag
-        return player
+        x, y = self.random_position()
+        color = self.random_color()
+        return Player(x, y, 50, 50, color, user_tag)
 
     async def handle_client(self, reader, writer):
+        conn_id = self.conn_mgr.get_new_connection_id()
+
         user_tag = await reader.read(2048)
         user_tag = pickle.loads(user_tag)
 
         player = self.new_player(user_tag)
-        # print("Player: ", player)
-        self.conn_mgr.add_player(player)
+        print("Player: ", player)
+        self.conn_mgr.add_player(conn_id, player)
 
-        player_data = player.serialize()
-        print(f"Sending player object: {player_data}")
-        writer.write(pickle.dumps(player_data))
+        print(f"Sending player object: {player}")
+        writer.write(pickle.dumps(player))
         await writer.drain()
 
         # Get the client's address
@@ -55,28 +48,22 @@ class Server:
                     break
 
                 data = pickle.loads(data)
-                player = self.conn_mgr.get_player(data['user_tag'])
-                # print("Player: ", player)
-                player.pos = pygame.math.Vector2(data['pos'])
-                # print("Player pos: ", player.pos)
-                player.direction = pygame.math.Vector2(data['dir'])
-                # print("Player dir: ", player.direction)
-                other_players = self.conn_mgr.get_all_players_except(player)
-                # print("Other players: ", other_players)
-                other_players = [p.serialize() for p in other_players]
-                # print("Sending other players data:", other_players)
+                print("Data2: ", data)
+                self.conn_mgr.players[conn_id] = data
+
+                other_players = self.conn_mgr.get_all_players_except(conn_id)
                 writer.write(pickle.dumps(other_players))
                 print("Received: ", data) 
                 await writer.drain()
 
-        except Exception as e:
-            print(f"Exception occurred: {e}")
+        except:
+            pass
 
         writer.close()
         await writer.wait_closed()
 
         print("Lost connection")
-        self.conn_mgr.remove_player(player)
+        self.conn_mgr.remove_player(conn_id)
 
     async def start_server(self):
         server = await asyncio.start_server(self.handle_client, self.ip, self.port)
@@ -86,6 +73,7 @@ class Server:
 
         async with server:
             await server.serve_forever()
+
 
 if __name__ == '__main__':
     server_ip = socket.gethostbyname(socket.gethostname())

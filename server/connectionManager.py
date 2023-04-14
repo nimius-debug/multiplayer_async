@@ -1,25 +1,24 @@
+import pygame
 class ConnectionManager:
     def __init__(self):
-        self.players = {}
-        self._next_connection_id = 0
+        self.players = pygame.sprite.Group()
 
-    def get_new_connection_id(self):
-        conn_id = self._next_connection_id
-        self._next_connection_id += 1
-        return conn_id
-    
+    def add_player(self, player):
+        self.players.add(player)
+
+    def remove_player(self, player):
+        self.players.remove(player)
+
     def get_all_players(self):
         return self.players
+
+    def get_all_players_except(self, player):
+        other_players = self.players.copy()
+        other_players.remove(player)
+        return other_players
     
-    def add_player(self, conn_id, player):
-        self.players[conn_id] = player
-
-    def remove_player(self, conn_id):
-        if conn_id in self.players:
-            del self.players[conn_id]
-
-    def get_player(self, conn_id):
-        return self.players.get(conn_id)
-
-    def get_all_players_except(self, conn_id):
-        return [player for id, player in self.players.items() if id != conn_id]
+    def get_player(self, user_tag):
+        for player in self.players:
+            if player.user_tag == user_tag:
+                return player
+        return None
