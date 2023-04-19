@@ -1,20 +1,27 @@
 import pygame
+
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../server'))
-
+pygame.init()
+pygame.display.set_mode((1, 1))
 from network import Network
 class GameClient:
     def __init__(self):
+        
+        pygame.init()
+        pygame.display.init()
+        pygame.display.set_caption("Client")
+        pygame.font.init()
+        
         self.width = 500
         self.height = 500
         self.win = pygame.display.set_mode((self.width, self.height))
-        pygame.display.set_caption("Client")
-        pygame.init()
-        pygame.font.init()
+        
         self.clock = pygame.time.Clock()
         self.player_username = self.get_player_id()
         self.net = Network(self.player_username)
+        
         self.plr = self.net.getP()
 
     def get_player_id(self):

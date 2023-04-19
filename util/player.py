@@ -1,15 +1,19 @@
 import pygame
-
+from support import *
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos, group, user_tag):
         super().__init__(group)
-
+        
+        
+        self.load_assets()
         self.status = 'down'
         self.frame_index = 0
 
-        # general setup
-        self.image = pygame.Surface((50, 50))
-        self.image.fill('green')
+        #general setup self.animations[self.status][self.frame_index] 
+        
+        self.image = self.animations[self.status][self.frame_index]
+        self.mask = pygame.mask.from_surface(self.image)
+        # self.image.fill('green')
         self.rect = self.image.get_rect(center=pos)
 
         # movement attributes
@@ -20,9 +24,16 @@ class Player(pygame.sprite.Sprite):
         # unique player id
         self.user_tag = user_tag
 
+    def load_assets(self):
+        self.animations = {'up': [], 'down': [], 'left': [], 'right': []}
+        for animation in self.animations.keys():
+            full_path = 'character/' + animation
+            self.animations[animation] = import_folder(full_path)
+            print(self.animations)
+        
     def detect_collision(self, other_players):
         for other_player in other_players:
-            if self.rect.colliderect(other_player.rect) and self.user_tag != other_player.user_tag:
+               if pygame.sprite.collide_mask(self, other_player) and self.user_tag != other_player.user_tag:
                 return True
         return False
     

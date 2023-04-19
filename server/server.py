@@ -13,6 +13,8 @@ from player import Player
 
 class Server:
     def __init__(self, ip, port):
+        pygame.init()
+        pygame.display.init()
         self.ip = ip
         self.port = port
         self.conn_mgr = ConnectionManager()
