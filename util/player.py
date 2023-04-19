@@ -20,6 +20,12 @@ class Player(pygame.sprite.Sprite):
         # unique player id
         self.user_tag = user_tag
 
+    def detect_collision(self, other_players):
+        for other_player in other_players:
+            if self.rect.colliderect(other_player.rect) and self.user_tag != other_player.user_tag:
+                return True
+        return False
+    
     def input(self):
         keys = pygame.key.get_pressed()
 
@@ -37,22 +43,34 @@ class Player(pygame.sprite.Sprite):
         else:
             self.direction.x = 0
 
-    def move(self, dt):
+    def move(self, dt, other_players):
         # normalizing a vector
         if self.direction.magnitude() > 0:
             self.direction = self.direction.normalize()
 
         # horizontal movement
-        self.pos.x += self.direction.x * self.speed * dt
-        self.rect.centerx = self.pos.x
+        new_pos_x = self.pos.x + self.direction.x * self.speed * dt
+        old_rect_x = self.rect.centerx
+        self.rect.centerx = new_pos_x
+        
+        if self.detect_collision(other_players):
+            self.rect.centerx = old_rect_x
+        else:
+            self.pos.x = new_pos_x
 
         # vertical movement
-        self.pos.y += self.direction.y * self.speed * dt
-        self.rect.centery = self.pos.y
-
-    def update(self, dt):
+        new_pos_y = self.pos.y + self.direction.y * self.speed * dt
+        old_rect_y = self.rect.centery
+        self.rect.centery = new_pos_y
+        
+        if self.detect_collision(other_players):
+            self.rect.centery = old_rect_y
+        else:
+            self.pos.y = new_pos_y
+    
+    def update(self, dt, other_players):
         self.input()
-        self.move(dt)
+        self.move(dt, other_players)
 
     def draw(self, surface):
         surface.blit(self.image, self.rect)

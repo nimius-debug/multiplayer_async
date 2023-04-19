@@ -38,7 +38,7 @@ class GameClient:
                     run = False
                     pygame.quit()
 
-            self.plr.update(dt)
+            self.plr.update(dt, other_players)
             if other_players is None:
                 other_players = []
             self.redrawWindow([self.plr] + other_players)
