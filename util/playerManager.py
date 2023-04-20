@@ -1,8 +1,8 @@
 import pygame
-class ConnectionManager:
+class PlayerManager:
     def __init__(self):
-        self.players = pygame.sprite.Group()
-
+        self.players = pygame.sprite.Group()   
+        
     def add_player(self, player):
         self.players.add(player)
 
@@ -22,3 +22,6 @@ class ConnectionManager:
             if player.user_tag == user_tag:
                 return player
         return None
+    
+    def draw(self, surface):
+        self.players.draw(surface)

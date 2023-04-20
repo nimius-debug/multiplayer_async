@@ -3,7 +3,7 @@ import pickle
 import random
 import socket
 from player import Player
-from connectionManager import ConnectionManager
+from playerManager import ConnectionManager
 
 class Server:
     def __init__(self, ip, port):

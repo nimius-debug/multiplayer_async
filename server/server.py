@@ -5,19 +5,20 @@ import socket
 import pygame
 import sys
 import os
-from connectionManager import ConnectionManager
+
 # Add the path of the folder containing the file you want to import
 folder_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../util'))
 sys.path.insert(0, folder_path)
 from player import Player
+from playerManager import PlayerManager
 
 class Server:
     def __init__(self, ip, port):
-        pygame.init()
-        pygame.display.init()
+        # pygame.init()
+        # pygame.display.init()
         self.ip = ip
         self.port = port
-        self.conn_mgr = ConnectionManager()
+        self.plr_mgr = PlayerManager()
 
     def random_position(self):
         return random.randint(0, 450), random.randint(0, 450)
@@ -28,7 +29,7 @@ class Server:
     def new_player(self, user_tag):
         pos = self.random_position()
         # color = self.random_color()
-        player = Player(pos, self.conn_mgr.players, user_tag)
+        player = Player(pos, self.plr_mgr.players, user_tag)
         # player.user_tag = user_tag
         return player
 
@@ -38,7 +39,7 @@ class Server:
 
         player = self.new_player(user_tag)
         # print("Player: ", player)
-        self.conn_mgr.add_player(player)
+        self.plr_mgr.add_player(player)
 
         player_data = player.serialize()
         print(f"Sending player object: {player_data}")
@@ -57,13 +58,13 @@ class Server:
                     break
 
                 data = pickle.loads(data)
-                player = self.conn_mgr.get_player(data['user_tag'])
+                player = self.plr_mgr.get_player(data['user_tag'])
                 # print("Player: ", player)
                 player.pos = pygame.math.Vector2(data['pos'])
                 # print("Player pos: ", player.pos)
                 player.direction = pygame.math.Vector2(data['dir'])
                 # print("Player dir: ", player.direction)
-                other_players = self.conn_mgr.get_all_players_except(player)
+                other_players = self.plr_mgr.get_all_players_except(player)
                 # print("Other players: ", other_players)
                 other_players = [p.serialize() for p in other_players]
                 # print("Sending other players data:", other_players)
@@ -78,7 +79,7 @@ class Server:
         await writer.wait_closed()
 
         print("Lost connection")
-        self.conn_mgr.remove_player(player)
+        self.plr_mgr.remove_player(player)
 
     async def start_server(self):
         server = await asyncio.start_server(self.handle_client, self.ip, self.port)

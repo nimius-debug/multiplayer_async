@@ -6,13 +6,7 @@ import pygame
 
 #r'C:\Users\jorge\Alquimista\Hackton\pygameHack\multi_p\character'
 def import_folder(path):
-    # Initialize a hidden display
-	# os.environ['SDL_VIDEODRIVER'] = 'dummy'
 	
-	# pygame.display.init()
-	# pygame.display.set_mode()
- 
- 
 	surface_list = []
 	for _,_,img_files in os.walk(path):
 		
@@ -22,6 +16,5 @@ def import_folder(path):
 			
 			print(image_surf)
 			surface_list.append(image_surf)
-			
 
 	return surface_list

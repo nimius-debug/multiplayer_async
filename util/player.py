@@ -3,14 +3,13 @@ from support import *
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos, group, user_tag):
         super().__init__(group)
-        
+        self.window = pygame.display.get_surface()
         
         self.load_assets()
-        self.status = 'down'
+        self.status = 'down_idle'
         self.frame_index = 0
 
         #general setup self.animations[self.status][self.frame_index] 
-        
         self.image = self.animations[self.status][self.frame_index]
         self.mask = pygame.mask.from_surface(self.image)
         # self.image.fill('green')
@@ -25,12 +24,21 @@ class Player(pygame.sprite.Sprite):
         self.user_tag = user_tag
 
     def load_assets(self):
-        self.animations = {'up': [], 'down': [], 'left': [], 'right': []}
+        self.animations = {'up': [], 'down': [], 'left': [], 'right': [],
+                           'right_idle':[],'left_idle':[],'up_idle':[],'down_idle':[]}
+        
         for animation in self.animations.keys():
             full_path = 'character/' + animation
             self.animations[animation] = import_folder(full_path)
-            print(self.animations)
-        
+        print(self.animations)
+    
+    def animate(self,dt):
+        self.frame_index += 4 * dt
+        print(self.frame_index)
+        if self.frame_index >= len(self.animations[self.status]):
+            self.frame_index = 0
+        self.image = self.animations[self.status][int(self.frame_index)]
+            
     def detect_collision(self, other_players):
         for other_player in other_players:
                if pygame.sprite.collide_mask(self, other_player) and self.user_tag != other_player.user_tag:
@@ -42,18 +50,28 @@ class Player(pygame.sprite.Sprite):
 
         if keys[pygame.K_UP]:
             self.direction.y = -1
+            self.status = 'up'
         elif keys[pygame.K_DOWN]:
             self.direction.y = 1
+            self.status = 'down'
         else:
             self.direction.y = 0
 
         if keys[pygame.K_RIGHT]:
             self.direction.x = 1
+            self.status = 'right'
         elif keys[pygame.K_LEFT]:
             self.direction.x = -1
+            self.status = 'left'
         else:
             self.direction.x = 0
 
+    def get_status(self):
+		# idle
+        if self.direction.magnitude() == 0:
+            self.status = self.status.split('_')[0] + '_idle'
+
+		# tool use
     def move(self, dt, other_players):
         # normalizing a vector
         if self.direction.magnitude() > 0:
@@ -81,13 +99,20 @@ class Player(pygame.sprite.Sprite):
     
     def update(self, dt, other_players):
         self.input()
+        self.get_status()
+        
         self.move(dt, other_players)
+        self.animate(dt)
 
+    def draw(self, surface):
+        for sprite in self.groups()[0]:
+            sprite.draw(surface)
+        
     def draw(self, surface):
         surface.blit(self.image, self.rect)
         font = pygame.font.Font(None, 24)
         text = font.render(f"ID: {self.user_tag}", True, (0, 0, 0))
-        surface.blit(text, (self.rect.x, self.rect.y - 20))
+        surface.blit(text, (self.rect.x + 50 , self.rect.y))
 
     def serialize(self):
         return {
