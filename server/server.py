@@ -10,15 +10,15 @@ import os
 folder_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../util'))
 sys.path.insert(0, folder_path)
 from player import Player
-from playerManager import PlayerManager
-
+from ConnectionManager import ConnectionManager
+from spriteGroup import all_sprites
 class Server:
     def __init__(self, ip, port):
         # pygame.init()
         # pygame.display.init()
         self.ip = ip
         self.port = port
-        self.plr_mgr = PlayerManager()
+        self.plr_mgr = ConnectionManager()
 
     def random_position(self):
         return random.randint(0, 450), random.randint(0, 450)
@@ -29,7 +29,7 @@ class Server:
     def new_player(self, user_tag):
         pos = self.random_position()
         # color = self.random_color()
-        player = Player(pos, self.plr_mgr.players, user_tag)
+        player = Player(pos, all_sprites, user_tag)
         # player.user_tag = user_tag
         return player
 
@@ -53,7 +53,7 @@ class Server:
         try:
             while True:
                 data = await reader.read(2048)
-                print("Data: ", data)
+                # print("Data: ", data)
                 if not data:
                     break
 
@@ -69,7 +69,7 @@ class Server:
                 other_players = [p.serialize() for p in other_players]
                 # print("Sending other players data:", other_players)
                 writer.write(pickle.dumps(other_players))
-                print("Received: ", data) 
+                # print("Received: ", data) 
                 await writer.drain()
 
         except Exception as e:

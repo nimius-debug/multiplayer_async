@@ -2,10 +2,10 @@ import socket
 import sys
 import os
 import pickle
+
 folder_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../util'))
 sys.path.insert(0, folder_path)
 from player import Player
-
 
 class Network:
     def __init__(self, user_tag):
@@ -25,9 +25,9 @@ class Network:
             self.client.send(pickle.dumps(user_tag))
             
             player_data = self.client.recv(2048)
-            print("Player data: ", player_data)
+            # print("Player data: ", player_data)
             self.plr = Player.deserialize(pickle.loads(player_data))
-            print("Player: ", self.plr)
+            # print("Player: ", self.plr)
             return self.plr
         except Exception as e:
             print("Error connecting to server", e)

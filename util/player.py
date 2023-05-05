@@ -18,23 +18,26 @@ class Player(pygame.sprite.Sprite):
         # movement attributes
         self.direction = pygame.math.Vector2()
         self.pos = pygame.math.Vector2(self.rect.center)
-        self.speed = 200
+        self.speed = 500
 
         # unique player id
         self.user_tag = user_tag
 
     def load_assets(self):
-        self.animations = {'up': [], 'down': [], 'left': [], 'right': [],
-                           'right_idle':[],'left_idle':[],'up_idle':[],'down_idle':[]}
+        self.animations = {'up': [],'down': [],'left': [],'right': [],
+						   'right_idle':[],'left_idle':[],'up_idle':[],'down_idle':[],
+						   'right_hoe':[],'left_hoe':[],'up_hoe':[],'down_hoe':[],
+						   'right_axe':[],'left_axe':[],'up_axe':[],'down_axe':[],
+						   'right_water':[],'left_water':[],'up_water':[],'down_water':[]}
         
         for animation in self.animations.keys():
-            full_path = 'character/' + animation
+            full_path = 'graphics/character/' + animation
             self.animations[animation] = import_folder(full_path)
-        print(self.animations)
+        # print(self.animations)
     
     def animate(self,dt):
         self.frame_index += 4 * dt
-        print(self.frame_index)
+        # print(self.frame_index)
         if self.frame_index >= len(self.animations[self.status]):
             self.frame_index = 0
         self.image = self.animations[self.status][int(self.frame_index)]
@@ -104,15 +107,31 @@ class Player(pygame.sprite.Sprite):
         self.move(dt, other_players)
         self.animate(dt)
 
-    def draw(self, surface):
-        for sprite in self.groups()[0]:
-            sprite.draw(surface)
+    # def draw(self, surface):
+    #     for sprite in self.groups()[0]:
+    #         sprite.draw(surface)
         
-    def draw(self, surface):
-        surface.blit(self.image, self.rect)
+    # def draw(self, surface):
+    #     surface.blit(self.image, self.rect)
+    #     font = pygame.font.Font(None, 24)
+    #     text = font.render(f"ID: {self.user_tag}", True, (0, 0, 0))
+    #     surface.blit(text, (self.rect.x + 50 , self.rect.y))
+    def draw(self, surface, camera_rect=None):
+        if camera_rect is None:
+            camera_rect = self.rect
+        surface.blit(self.image, camera_rect)
         font = pygame.font.Font(None, 24)
         text = font.render(f"ID: {self.user_tag}", True, (0, 0, 0))
-        surface.blit(text, (self.rect.x + 50 , self.rect.y))
+        surface.blit(text, (camera_rect.x + 50 , camera_rect.y))
+        
+    def draw_with_camera(self, surface, camera):
+       
+        
+        camera_rect = self.rect.move(-camera.offset.x, -camera.offset.y)
+        surface.blit(self.image, camera_rect)
+        font = pygame.font.Font(None, 24)
+        text = font.render(f"ID: {self.user_tag}", True, (0, 0, 0))
+        surface.blit(text, (camera_rect.x + 50, camera_rect.y))
 
     def serialize(self):
         return {
